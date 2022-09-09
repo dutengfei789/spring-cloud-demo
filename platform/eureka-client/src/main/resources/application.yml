@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: eureka-client
+server:
+  port: 30000
+eureka:
+    instance:
+        hostname: localhost
+        # 每隔x秒向服务中心发送一条续约指令
+        lease-renewal-interval-in-seconds: 60
+        # 过x秒依然未收到续约请求，判定为服务过期
+        lease-expiration-duration-in-seconds: 60
+
+    client:
+      service-url:
+        defaultZone: http://localhost:20000/eureka/
+
+# 指定服务使用的轮询方式
+eureka-client:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
