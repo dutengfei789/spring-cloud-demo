@@ -42,6 +42,16 @@ spring:
     multipart:
       max-file-size: 512000     # 文件上传大小限制为500kb
       max-request-size: 512000  # 请求大小限制为500kb
+  zipkin:
+    enabled: true
+    base-url: http://ZIPKIN-SERVER/
+    #以http形式上传数据到zipkin，若使用了bus依赖，可能会出现rabbitmq依赖项，zipkin默认使用mq
+    sender:
+      type: web
+    locator:
+      discovery:
+        enabled: true
+
 
 ############################################################
 #

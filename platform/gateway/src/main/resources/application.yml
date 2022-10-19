@@ -34,6 +34,14 @@ spring:
         enabled: false
         lower-case-service-id: true
       # routes:
+  zipkin:
+    discovery-client-enabled: true
+    base-url: http://ZIPKIN-SERVER
+    locator:
+      discovery:
+        enabled: true
+    sender:
+      type: web
 
 server:
   port: 20004
