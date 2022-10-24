@@ -50,6 +50,20 @@ spring:
     locator:
       discovery:
         enabled: true
+  cloud:
+    stream:
+      bindings:
+        orderstatus-producer:
+          destination: orderstatus-topic
+        orderstatus-consumer:
+          destination: orderstatus-topic
+          group: order-group
+      rabbit:
+        bindings:
+          orderstatus-producer:
+            producer:
+              delayed-exchange: true
+
 
 ############################################################
 #

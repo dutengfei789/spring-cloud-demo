@@ -51,6 +51,16 @@ spring:
     locator:
       discovery:
         enabled: true
+  cloud:
+    stream:
+      bindings:
+        force-logout-consumer:
+          destination: force-logout-topic
+          group: force-logout-group
+          consumer:
+            max-attempts: 2
+        force-logout-producer:
+          destination: force-logout-topic
 
 ############################################################
 #

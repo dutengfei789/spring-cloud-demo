@@ -6,6 +6,7 @@ import com.dtf.pojo.ShopcartBO;
 import com.dtf.user.pojo.Users;
 import com.dtf.user.pojo.bo.UserBO;
 import com.dtf.user.service.UserService;
+import com.dtf.user.stream.ForceLogoutTopic;
 import com.dtf.util.CookieUtils;
 import com.dtf.util.JsonUtils;
 import com.dtf.util.MD5Utils;
@@ -14,8 +15,10 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +29,7 @@ import java.util.List;
 @Api(value = "注册登录", tags = {"用于注册登录的相关接口"})
 @RestController
 @RequestMapping("passport")
+@Slf4j
 public class PassportController extends BaseController {
 
     @Autowired
@@ -33,6 +37,9 @@ public class PassportController extends BaseController {
 
     @Autowired
     private RedisOperator redisOperator;
+
+    @Autowired
+    private ForceLogoutTopic producer;
 
     @ApiOperation(value = "用户名是否存在", notes = "用户名是否存在", httpMethod = "GET")
     @GetMapping("/usernameIsExist")
@@ -274,6 +281,21 @@ public class PassportController extends BaseController {
         // 分布式会话中需要清除用户数据
         CookieUtils.deleteCookie(request, response, FOODIE_SHOPCART);
 
+        return IMOOCJSONResult.ok();
+    }
+
+    // FIXME 将这个接口从网关层移除，不对外暴露
+    // 简陋版api - 长得丑但是跑得快
+    @ApiOperation(value = "用户强制退出登录", notes = "用户退出登录", httpMethod = "POST")
+    @PostMapping("/forceLogout")
+    public IMOOCJSONResult forceLogout(@RequestParam String userIds) {
+        if (StringUtils.isNotBlank(userIds)) {
+            for (String uid : userIds.split(",")) {
+                log.info("send logout message, uid={}", uid);
+                producer.output()
+                        .send(MessageBuilder.withPayload(uid).build());
+            }
+        }
         return IMOOCJSONResult.ok();
     }
 
